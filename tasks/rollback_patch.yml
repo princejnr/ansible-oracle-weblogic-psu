@@ -8,10 +8,11 @@
   include: pre_checks.yml
   tags: pre_checks
 
-- name: Stop EM Agent
-  shell: "{{ agent_home }}/bin/emctl stop agent"
+
+- name: Stop WebLogic
+  shell: pwd # actual command to be obtained by connecting to server "{{ agent_home }}/bin/emctl stop agent"
   become_user: "{{ oracle_user }}"
-  when: agent_home is defined and shutdown_listener
+  when: agent_home is defined and shutdown_server
   tags: stop_agent
 
 - name: Rollback Quarterly Patch
@@ -19,11 +20,11 @@
   become_user: "{{ oracle_user }}"
   tags: rollback
 
-- name: Start EM Agent
-  shell: "{{ agent_home }}/bin/emctl start agent"
+- name: Start WebLogic
+  shell: pwd # actual command to be obtained by connecting to server "{{ agent_home }}/bin/emctl stop agent"
   become: yes
   become_user: "{{ oracle_user }}"
-  when: agent_home is defined and shutdown_listener
+  when: agent_home is defined and shutdown_server
   tags: start_agent
 
 - name: Opatch lsinventory
