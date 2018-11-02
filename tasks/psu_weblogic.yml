@@ -1,0 +1,28 @@
+---
+# psu-apply steps for single instance WebLogic home
+
+- name: WebLogic | update opatch
+  unarchive:
+    src: "{{ oracle_stage_install }}/{{ opatch[oracle_version].filename }}"
+    dest: "{{ oracle_home }}"
+    copy: no
+    owner: "{{ oracle_user }}"
+    group: "{{ oracle_group }}"
+
+- name: WebLogic | check for conflicts
+  shell: "opatch prereq CheckConflictAgainstOHWithDetail -phBaseDir {{ patch_directory }}/{{ quarterly_patches[patch_type][oracle_version][patch_name].si_patchid }}"
+  environment: "{{ env }}"
+  register: opatch_conflicts
+
+- debug: var=opatch_conflicts.stdout_lines
+
+- name: WebLogic | opatch apply
+  shell: "opatch apply -silent -force -ocmrf {{ oracle_stage_install }}/ocm.rsp {{ patch_directory }}/{{ quarterly_patches[patch_type][oracle_version][patch_name].si_patchid }}"
+  environment: "{{ env }}"
+  register: opatch_apply
+
+- debug: var=opatch_apply.stdout_lines
+
+- name: WebLogic | apply oneoff patches
+  include: oneoff_apply.yml
+  when: oneoff_patches[ quarterly_patches[patch_type][oracle_version][patch_name].patchversion ] is defined
