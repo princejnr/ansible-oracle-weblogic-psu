@@ -8,15 +8,15 @@
   include: pre_checks.yml
   tags: pre_checks
 
-- name: Extract PSU and One-off patches
+- name: Download and extract patches
   include: extract_files.yml
   when: not rollback_psu
   tags: extract_files
 
-- name: Stop EM Agent
-  shell: "{{ agent_home }}/bin/emctl stop agent"
+- name: Stop WebLogic
+  shell: pwd # actual command to be obtained by connecting to server "{{ agent_home }}/bin/emctl stop agent"
   become_user: "{{ oracle_user }}"
-  when: agent_home is defined and shutdown_listener
+  when: agent_home is defined and shutdown_server
   tags: stop_agent
 
 - name: Apply Quarterly Patch
@@ -31,11 +31,11 @@
   when: rollback_psu
   tags: rollback
 
-- name: Start EM Agent
-  shell: "{{ agent_home }}/bin/emctl start agent"
+- name: Start WebLogic
+  shell: pwd # actual command to be obtained by connecting to server "{{ agent_home }}/bin/emctl stop agent"
   become: yes
   become_user: "{{ oracle_user }}"
-  when: agent_home is defined and shutdown_listener
+  when: agent_home is defined and shutdown_server
   tags: start_agent
 
 - name: Opatch lsinventory
@@ -43,7 +43,6 @@
   become_user: "{{ oracle_user }}"
   with_items:
     - "{{ oracle_home }}"
-    - "{{ grid_home|default(None) }}"
   when: item is defined
   register: lsinv_post
 
